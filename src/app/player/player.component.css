@@ -1,0 +1,19 @@
+.content-wrapper {
+	margin-left: 10px;
+}
+
+h1 {
+	font-size: 50px;
+	font-weight: bold;
+	font-style: italic;
+}
+
+h2 {
+    font-size: 30px;
+}
+
+.grid-container {
+	display: grid;
+	grid-template-columns: repeat(2, 150px);
+	justify-items: left;
+}
