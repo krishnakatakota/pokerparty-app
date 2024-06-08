@@ -8,6 +8,15 @@ import { CommunityComponent } from './community/community.component';
 import { CardComponent } from './card/card.component';
 import { HostComponent } from './host/host.component';
 import { UserComponent } from './user/user.component';
+import { LobbyJoinScreenComponent } from './lobby-join-screen/lobby-join-screen.component';
+import { PlayerListComponent } from './player-list/player-list.component';
+import { JoinLobbyComponent } from './join-lobby/join-lobby.component';
+
+// PrimeNG Components
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { PanelModule } from 'primeng/panel';
+import { TableModule } from 'primeng/table';
 
 @NgModule({
   declarations: [
@@ -16,11 +25,18 @@ import { UserComponent } from './user/user.component';
     CommunityComponent,
     CardComponent,
     HostComponent,
-    UserComponent
+    UserComponent,
+    LobbyJoinScreenComponent,
+    PlayerListComponent,
+    JoinLobbyComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+	ButtonModule,
+	CardModule,
+	PanelModule,
+	TableModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,5 +1,7 @@
-<p
-	[ngStyle]="{'color': this.card.suit == 0 || this.card.suit == 1 ? 'red' : 'black'}"
->
-	{{ this.rankString }}{{ this.suitString }}
-</p>
+<p-card>
+	<div class="card">
+		<p [ngStyle]="{'color': this.card.suit == 0 || this.card.suit == 1 ? 'red' : 'black'}">
+			{{ this.rankString }}{{ this.suitString }}
+		</p>
+	</div>
+</p-card>

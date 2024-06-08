@@ -1,35 +1,110 @@
-<span>PokerParty</span>
+<!-- <header class="title">
+	<div>PokerParty!</div>
+</header> -->
 
 <router-outlet></router-outlet>
 
-
 <div class="content-wrapper">
-  <!-- <nav>
+	<!-- <nav>
     <a routerLink="/user">User</a>
     <br>
     <a routerLink="/host">Host</a>
-  </nav> -->
-  <br>
-  @if(!isHost) {
-    <app-player  [player]="this.dealerService.playerList[this.userId]"></app-player>
-  }
-  @if(isHost) {
-    <app-community [community]="this.dealerService.community"></app-community>
-  }
-  <h1 *ngFor="let player of winners">{{ player.name }} wins via {{ this.dealerService.scoreHand(player.hand).name }}</h1>
+	</nav> -->
+	<!-- <br /> -->
+
+	<section>
+		<div>
+			@if (choosingMode) {
+				<!-- Player is still choosing whether to host or to join a game -->
+				<div class="general-content">
+					<p-card>
+						<h1>Welcome to PokerParty!</h1>
+						<h4>Click below to either host or join a game.</h4>
+						<br>
+						<!-- User wants to host a lobby, set choosingMode to false and isHost to true. Also, generate join code here. -->
+						<p-button label="Create New Lobby" (click)="creatingLobby()"></p-button>
+						<br><br>
+						<!-- User wants to join a lobby, set choosingMode to false and isHost tofalse -->
+						<p-button label="Join Game" (click)="joinLobby()"></p-button>
+					</p-card>
+				</div>
+			}
+			@else {
+				<!-- User has chosen host or player mode -->
+				@if (isHost) {
+					<!-- User has chosen host -->
+					@if (gameStarted) {
+						<!-- Everyone is in and game HAS started, and therefore should see community screen -->
+						<div class="general-content">
+							<!-- Ends game, kicks all back to lobby screen by setting gameStarted to false -->
+							<p-button label="End Game" (click)="endGame()"></p-button>
+							<app-community [community]="this.dealerService.community"></app-community>
+							<!-- TODO: Should add button logic to do 3 + 1 + 1 instead of all 5 cards at once -->
+							<p-button label="Deal" (click)="deal()" />
+						</div>
+					}
+					@else {
+						<!-- Lobby is populating and game HASN'T started, should see player-list screen -->
+						<div class="general-content">
+							<!-- Should close lobby, set gameStarted to false, choosingMode to true -->
+							<p-button label="Close Lobby" (click)="closeLobby()"></p-button>
+							<!-- Setting isHost parameter to true to permit player reordering -->
+							<app-player-list isHost="true" joinCode="{{joinCode}}"></app-player-list>
+							<!-- Set gameStarted to true -->
+							<p-button label="Start Game" (click)="startGame()"></p-button>
+						</div>
+					}
+				}
+				@else {
+					<!-- User has chosen player -->
+					@if (gameStarted) {
+						<!-- Player's game has started, so they should see their own cards on player screen -->
+						<div class="general-content">
+							<!-- Player leaves game, goes back to join lobby screen by setting gameStarted to false and joiningGame to true -->
+							<p-button label="Back" (click)="leaveGame()"></p-button>
+							<app-player [player]="this.dealerService.playerList[this.userId]"></app-player>
+							<!-- TODO: SHOULD BE DELETED WHEN FINISHED TESTING!!!!!! -->
+							<p-button label="Change User (FOR TESTING PURPOSES ONLY)" (click)="incrementUserId()" />
+							<!-- Left blank for player actions (fold check etc idk) -->
+							<p-button label="Action" ></p-button>
+							<p-button label="Action" ></p-button>
+						</div>
+					}
+					@else {
+						<!-- Player's game has not started, so they should be either joining a game or in the lobby -->
+						@if (joiningGame) {
+							<!-- Player is joining a lobby, should see join-lobby screen -->
+							<div class="general-content">
+								<!-- Back button should take played back to host/player choice screen, set choosingMode to true, gameStarted to false -->
+								<p-button label="Back" (click)="backToGamemodeChoices()"></p-button>
+								<app-join-lobby></app-join-lobby>
+							</div>
+						}
+						@else {
+							<!-- Player is in a lobby waiting for game to start, should see player-list screen -->
+							<div class="general-content">
+								<!-- Player leaves game, goes back to join lobby screen by setting gameStarted to false and joiningGame to true -->
+								<p-button label="Back" (click)="leaveGame()"></p-button>
+								<!-- Setting isHost parameter to false to forbid player reordering -->
+								<app-player-list isHost="false"></app-player-list>
+							</div>
+						}
+					}
+
+				}
+			}
+		</div>
+	</section>
+
+	<!-- OLD CODE USED TO TEST DEALER SERVICE -->
+	<!-- <div>
+		<app-community [community]="this.dealerService.community"></app-community>
+		<app-player [player]="this.dealerService.playerList[this.userId]"></app-player>
+		<h1 *ngFor="let player of winners">
+			{{ player.name }} wins via
+			{{ this.dealerService.scoreHand(player.hand).name }}
+		</h1>
+		<p-button label="Deal" (click)="deal()" />
+		<p-button label="Change User" (click)="incrementUserId()" />
+	</div> -->
 </div>
-<button (click)="deal()">
-  <div>
-    Deal!
-  </div>
-</button>
-<button (click)="toggleHost()">
-  <div>
-    Change view
-  </div>
-</button>
-<button (click)="incrementUserId()">
-  <div>
-    Change User
-  </div>
-</button>
