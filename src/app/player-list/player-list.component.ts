@@ -9,4 +9,5 @@ export class PlayerListComponent {
 
 	@Input() isHost: any;
 	@Input() joinCode: any;
+	@Input() playerList: any;
 }

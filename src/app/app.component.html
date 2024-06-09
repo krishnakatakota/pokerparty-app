@@ -1,7 +1,3 @@
-<!-- <header class="title">
-	<div>PokerParty!</div>
-</header> -->
-
 <router-outlet></router-outlet>
 
 <div class="content-wrapper">
@@ -18,8 +14,10 @@
 				<!-- Player is still choosing whether to host or to join a game -->
 				<div class="general-content">
 					<p-card>
-						<h1>Welcome to PokerParty!</h1>
-						<h4>Click below to either host or join a game.</h4>
+						<div class="larger-text">
+							<h1>PokerParty!</h1>
+							<h4>Welcome!<br>Click below to either host or join a game.</h4>
+						</div>
 						<br>
 						<!-- User wants to host a lobby, set choosingMode to false and isHost to true. Also, generate join code here. -->
 						<p-button label="Create New Lobby" (click)="creatingLobby()"></p-button>
@@ -38,7 +36,10 @@
 						<div class="general-content">
 							<!-- Ends game, kicks all back to lobby screen by setting gameStarted to false -->
 							<p-button label="End Game" (click)="endGame()"></p-button>
+							<br><br>
+							<!-- Display community cards w/ all corresponding buttons -->
 							<app-community [community]="this.dealerService.community"></app-community>
+							<br>
 							<!-- TODO: Should add button logic to do 3 + 1 + 1 instead of all 5 cards at once -->
 							<p-button label="Deal" (click)="deal()" />
 						</div>
@@ -48,8 +49,10 @@
 						<div class="general-content">
 							<!-- Should close lobby, set gameStarted to false, choosingMode to true -->
 							<p-button label="Close Lobby" (click)="closeLobby()"></p-button>
+							<br><br>
 							<!-- Setting isHost parameter to true to permit player reordering -->
-							<app-player-list isHost="true" joinCode="{{joinCode}}"></app-player-list>
+							<app-player-list isHost="true" joinCode="{{joinCode}}" [playerList]="this.dealerService.playerList"></app-player-list>
+							<br>
 							<!-- Set gameStarted to true -->
 							<p-button label="Start Game" (click)="startGame()"></p-button>
 						</div>
@@ -62,7 +65,7 @@
 						<div class="general-content">
 							<!-- Player leaves game, goes back to join lobby screen by setting gameStarted to false and joiningGame to true -->
 							<p-button label="Back" (click)="leaveGame()"></p-button>
-							<app-player [player]="this.dealerService.playerList[this.userId]"></app-player>
+							<app-player [player]="player"></app-player>
 							<!-- TODO: SHOULD BE DELETED WHEN FINISHED TESTING!!!!!! -->
 							<p-button label="Change User (FOR TESTING PURPOSES ONLY)" (click)="incrementUserId()" />
 							<!-- Left blank for player actions (fold check etc idk) -->
@@ -77,7 +80,11 @@
 							<div class="general-content">
 								<!-- Back button should take played back to host/player choice screen, set choosingMode to true, gameStarted to false -->
 								<p-button label="Back" (click)="backToGamemodeChoices()"></p-button>
-								<app-join-lobby></app-join-lobby>
+								<br><br>
+								<app-join-lobby (newPlayerEvent)="setPlayer($event)"></app-join-lobby>
+								<!-- Send game joining request -->
+								<br>
+								<p-button label="Join Game!" (click)="sendJoinRequest()"></p-button>
 							</div>
 						}
 						@else {
@@ -85,6 +92,7 @@
 							<div class="general-content">
 								<!-- Player leaves game, goes back to join lobby screen by setting gameStarted to false and joiningGame to true -->
 								<p-button label="Back" (click)="leaveGame()"></p-button>
+								<br>
 								<!-- Setting isHost parameter to false to forbid player reordering -->
 								<app-player-list isHost="false"></app-player-list>
 							</div>

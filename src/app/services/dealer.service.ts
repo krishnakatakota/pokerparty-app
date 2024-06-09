@@ -3,30 +3,20 @@ import { Card, Suit, Rank } from "../objects/card";
 import { Player } from "../objects/player";
 import { PokerHandResult } from "../objects/pokerHandResult";
 
+import { PpWsService } from "./pp-ws.service";
+
 @Injectable({
 	providedIn: "root",
 })
 export class DealerService {
-	playerList: Player[] = [
-		{
-			id: 0,
-			name: "Shreyash",
-			hand: [],
-		},
-		{
-			id: 1,
-			name: "Ryder",
-			hand: [],
-		},
-		{
-			id: 2,
-			name: "Krishna",
-			hand: [],
-		},
-	];
+	playerList: Player[] = [];
 
 	deck: Card[] = [];
 	community: Card[] = [];
+
+	addPlayer(newPlayer: Player) {
+		this.playerList.push(newPlayer);
+	}
 
 	getPlayerList(): Player[] {
 		return this.playerList;

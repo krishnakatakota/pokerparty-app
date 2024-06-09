@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
+import { Player } from '../objects/player';
 
 @Component({
   selector: 'app-join-lobby',
@@ -7,4 +8,21 @@ import { Component } from '@angular/core';
 })
 export class JoinLobbyComponent {
 
+	@Output() newPlayerEvent = new EventEmitter<Player>();
+	
+	playerName: string = "";
+	playerJoinCode: string = "";
+
+	sendPlayer() {
+		const player: Player = {
+			id: 0,
+			name: this.playerName,
+			hand: [],
+			turnNumber: Number.MAX_VALUE,
+			status: 'requesting-join',
+			joinCode: this.playerJoinCode
+		}
+
+		this.newPlayerEvent.emit(player);
+	}
 }

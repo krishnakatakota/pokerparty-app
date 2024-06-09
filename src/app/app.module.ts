@@ -17,6 +17,8 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { PanelModule } from 'primeng/panel';
 import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -36,7 +38,9 @@ import { TableModule } from 'primeng/table';
 	ButtonModule,
 	CardModule,
 	PanelModule,
-	TableModule
+	TableModule,
+	InputTextModule,
+	FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

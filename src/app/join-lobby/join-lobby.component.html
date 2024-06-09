@@ -1,1 +1,11 @@
-<p>join-lobby works!</p>
+<p-card>
+	<div class="general-content">
+		<div class="white-text-box">
+			<label for="name">Enter Name: </label>
+			<input id="name" type="text" pInputText [(ngModel)]="playerName" (change)="sendPlayer()"/>
+			<br><br>
+			<label for="code">Enter Code: </label>
+			<input id="code" type="text" pInputText [(ngModel)]="playerJoinCode" (change)="sendPlayer()"/>
+		</div>
+	</div>
+</p-card>

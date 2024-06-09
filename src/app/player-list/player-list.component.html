@@ -1,7 +1,37 @@
 <p-card>
-	<h1>Code: {{ joinCode }}</h1>
-	<h1>Players:</h1>
-	<p-table>
-
-	</p-table>
+	<div class="general-content">
+		<div class="white-text-box">
+			<h1>Code: {{ joinCode }}</h1>
+		</div>
+	</div>
+	<h1>Player List:</h1>
+	<div class="center-all">
+		<div class="general-content">
+			<p-table [value]="playerList" [tableStyle]="{ 'min-width': '20vw' }" styleClass="p-datatable-lg">
+					<!-- 
+					pTemplate header defines what is shown in the table.
+					Order of elements here should be same as order in pTemplate body.
+				-->
+				<ng-template pTemplate="header">
+					<tr>
+						<th>Name</th>
+						<th>Turn</th>
+					</tr>
+				</ng-template>
+		
+				<!-- 
+					pTemplate body populates all players' data.
+					The "let-player" defines "player" as each element of the "playerList" 
+					collection defined in [value] above. You can get each player's data
+					using player.FIELD_NAME, as seen below.
+				-->
+				<ng-template pTemplate="body" let-player>
+					<tr>
+						<td>{{ player.name }}</td>
+						<td>{{ player.turnNumber }}</td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
+	</div>
 </p-card>

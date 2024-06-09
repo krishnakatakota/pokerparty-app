@@ -12,8 +12,23 @@ h2 {
 	font-size: 30px;
 }
 
-.grid-container {
-	display: grid;
-	grid-template-columns: repeat(5, 175px);
-	justify-items: left;
+.table-container {
+	display: flex;
+	justify-content: center;
+	background-color: #333;
+	padding: 20px;
+}
+
+.center-all {
+	display: flex;
+	justify-content: center;
+}
+
+.white-text-box {
+	min-height: fit-content;
+
+	h1 {
+		font-size:4vmax;
+		color: white;
+	}
 }

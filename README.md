@@ -1,4 +1,4 @@
-# PokerpartyApp
+# PokerParty!
 
 ### Instructions for running locally
 * clone repo

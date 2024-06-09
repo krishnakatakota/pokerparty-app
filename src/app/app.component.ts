@@ -17,6 +17,14 @@ export class AppComponent implements OnInit {
 
 	winners: Player[] = [];
 	userId: number = 0;
+	player: Player = {
+		id: 0,
+		name: "",
+		hand: [],
+		turnNumber: 0,
+		status: " ",
+		joinCode: ""
+	};
 
 	choosingMode: boolean = true;
 	isHost: boolean = true;
@@ -45,6 +53,7 @@ export class AppComponent implements OnInit {
 		this.winners = this.dealerService.determineWinner();
 
 		this.sendDeck();
+		console.log(this.dealerService);
 	}
 
 	incrementUserId() {
@@ -69,12 +78,26 @@ export class AppComponent implements OnInit {
 	}
 	
 	sendDeck() {
+		this.wsService.sendMessage(this.dealerService);
+	}
 
+		
+	sendPlayerList() {
+		this.wsService.sendMessage(this.dealerService.playerList[0]);
+	}		
+
+	sendJoinRequest() {
+		this.wsService.sendMessage(this.player);
 	}
 
 	sendCode() {
 
 	}
+
+	setPlayer(playerEvent: Player) {
+		this.player = playerEvent;
+	}
+
 
 	// Don't touch these - used only for UI screen flow.
 	// Still should be tested - player in lobby screen has not been tested yet!
