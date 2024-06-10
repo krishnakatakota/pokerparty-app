@@ -18,7 +18,7 @@ export class JoinLobbyComponent {
 			id: 0,
 			name: this.playerName,
 			hand: [],
-			turnNumber: Number.MAX_VALUE,
+			turnNumber: -1,
 			status: 'requesting-join',
 			joinCode: this.playerJoinCode
 		}

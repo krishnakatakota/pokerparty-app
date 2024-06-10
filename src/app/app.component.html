@@ -20,7 +20,7 @@
 						</div>
 						<br>
 						<!-- User wants to host a lobby, set choosingMode to false and isHost to true. Also, generate join code here. -->
-						<p-button label="Create New Lobby" (click)="creatingLobby()"></p-button>
+						<p-button label="Create New Lobby" (click)="createLobby()"></p-button>
 						<br><br>
 						<!-- User wants to join a lobby, set choosingMode to false and isHost tofalse -->
 						<p-button label="Join Game" (click)="joinLobby()"></p-button>
@@ -51,7 +51,7 @@
 							<p-button label="Close Lobby" (click)="closeLobby()"></p-button>
 							<br><br>
 							<!-- Setting isHost parameter to true to permit player reordering -->
-							<app-player-list isHost="true" joinCode="{{joinCode}}" [playerList]="this.dealerService.playerList"></app-player-list>
+							<app-player-list isHost="true" joinCode="{{ localGameCode }}" [playerList]="this.dealerService.playerList"></app-player-list>
 							<br>
 							<!-- Set gameStarted to true -->
 							<p-button label="Start Game" (click)="startGame()"></p-button>

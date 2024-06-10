@@ -1,8 +1,10 @@
 import { DealerService } from "./services/dealer.service";
 import { PpWsService } from "./services/pp-ws.service";
-import { Player } from "./objects/player";
 import { Component, OnInit, inject } from "@angular/core";
 
+import { Player } from "./objects/player";
+import { GameState } from "./objects/gameState";
+import { Subscription } from "rxjs";
 
 @Component({
 	selector: "app-root",
@@ -12,11 +14,17 @@ import { Component, OnInit, inject } from "@angular/core";
 export class AppComponent implements OnInit {
 	title = "pokerparty";
 
-	protected dealerService: DealerService = inject(DealerService);
 	private wsService: PpWsService = inject(PpWsService);
+	dealerService: DealerService = inject(DealerService);
+	private subscription!: Subscription;
 
 	winners: Player[] = [];
 	userId: number = 0;
+	localGameCode: string = "";
+	gameState: GameState = {
+		ds: this.dealerService,
+		gameCode: ""
+	}
 	player: Player = {
 		id: 0,
 		name: "",
@@ -31,18 +39,40 @@ export class AppComponent implements OnInit {
 	gameStarted: boolean = false;
 	joiningGame: boolean = true;
 
-	joinCode: any;
-
 	ngOnInit() {
-		// this.deal();
-
-		console.log(this.dealerService);
-		console.log(this.winners);
-
+		this.deal();
+		
 		const wsUrl = "ws://localhost:8080";
 		this.wsService.connect(wsUrl);
-		this.wsService.sendMessage("");
-		// console.log(this.userId);
+
+		this.subscription = this.wsService.lastMessage.subscribe(message => {
+			console.log(message.substring(0,1));
+			const messageCode = parseInt(message.substring(0,1));
+			const messageBody = JSON.parse(message.substring(2));
+
+			switch (messageCode) {
+				case 0: {
+					// 0 = Game state update
+					this.gameState = <GameState>messageBody;
+					break;
+				}
+				case 1: {
+					// 1 = Player join request
+					if (this.isHost) {
+						var requestPlayer = <Player>messageBody;
+						if (requestPlayer.joinCode === this.localGameCode) {
+							this.addPlayer(requestPlayer);
+						}
+					}
+					break;
+				}
+			}
+
+		});
+
+		// this.deal();
+		// console.log(this.dealerService);
+		// console.log(this.winners);
 	}
 
 	deal() {
@@ -52,7 +82,6 @@ export class AppComponent implements OnInit {
 		this.dealerService.dealCommunityCards();
 		this.winners = this.dealerService.determineWinner();
 
-		this.sendDeck();
 		console.log(this.dealerService);
 	}
 
@@ -69,29 +98,33 @@ export class AppComponent implements OnInit {
 		const charactersLength = characters.length;
 		let counter = 0;
 		while (counter < length) {
-		  result += characters.charAt(Math.floor(Math.random() * charactersLength));
-		  counter += 1;
+			result += characters.charAt(Math.floor(Math.random() * charactersLength));
+			counter += 1;
 		}
 		console.log(result);
-		this.wsService.sendMessage("joinCode: " + result);
 		return result;
 	}
-	
-	sendDeck() {
-		this.wsService.sendMessage(this.dealerService);
+
+	addPlayer(newPlayer: Player) {
+		this.dealerService.addPlayer(newPlayer);
+		this.sendGameState();
 	}
 
-		
-	sendPlayerList() {
-		this.wsService.sendMessage(this.dealerService.playerList[0]);
-	}		
+	// sendDeck() {
+	// 	this.wsService.sendMessage(this.dealerService);
+	// }
+
+
+	// sendPlayerList() {
+	// 	this.wsService.sendMessage(this.dealerService.playerList[0]);
+	// }
 
 	sendJoinRequest() {
 		this.wsService.sendMessage(this.player);
 	}
 
-	sendCode() {
-
+	sendGameState() {
+		this.wsService.sendMessage(this.gameState);
 	}
 
 	setPlayer(playerEvent: Player) {
@@ -99,12 +132,18 @@ export class AppComponent implements OnInit {
 	}
 
 
-	// Don't touch these - used only for UI screen flow.
+	// Don't touch these - used only for UI screen control.
 	// Still should be tested - player in lobby screen has not been tested yet!
 
 	// <!-- User wants to host a lobby, set choosingMode to false and isHost to true. Also, generate join code here. -->
-	creatingLobby() {
-		this.joinCode = this.generateJoinCode(6);
+	createLobby() {
+		this.localGameCode = this.generateJoinCode(6);
+		this.gameState = {
+			ds: this.dealerService,
+			gameCode: this.localGameCode
+		}
+
+		this.sendGameState();
 
 		this.choosingMode = false;
 		this.isHost = true;
