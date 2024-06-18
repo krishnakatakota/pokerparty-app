@@ -61,7 +61,10 @@ export class AppComponent implements OnInit {
 					if (this.isHost) {
 						var requestPlayer = <Player>messageBody;
 						if (requestPlayer.joinCode === this.localGameCode) {
-							this.addPlayer(requestPlayer);
+							// TODO Send error message if there is a name collision
+							if (this.isNewPlayer(requestPlayer)) {
+								this.addPlayer(requestPlayer);
+							}
 						}
 					}
 					break;
@@ -73,6 +76,15 @@ export class AppComponent implements OnInit {
 		// this.deal();
 		// console.log(this.dealerService);
 		// console.log(this.winners);
+	}
+
+	isNewPlayer(requestPlayer: Player) {
+		for (let player of this.dealerService.playerList) {
+			if (player.name == requestPlayer.name) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	deal() {
