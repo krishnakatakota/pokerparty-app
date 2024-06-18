@@ -60,6 +60,7 @@
 				}
 				@else {
 					<!-- User has chosen player -->
+					<!-- TODO users currently have no way of seeing if the game started or seeing their cards -->
 					@if (gameStarted) {
 						<!-- Player's game has started, so they should see their own cards on player screen -->
 						<div class="general-content">
@@ -88,13 +89,16 @@
 							</div>
 						}
 						@else {
-							<!-- Player is in a lobby waiting for game to start, should see player-list screen -->
+							<!-- Player is in a lobby waiting for game to start, should see waiting message -->
 							<div class="general-content">
+								<p-card>
+								<div class="larger-text">
+									<h2>You're in! Waiting for host to start game.</h2>
+								</div>
+								</p-card>
 								<!-- Player leaves game, goes back to join lobby screen by setting gameStarted to false and joiningGame to true -->
 								<p-button label="Back" (click)="leaveGame()"></p-button>
 								<br>
-								<!-- Setting isHost parameter to false to forbid player reordering -->
-								<app-player-list isHost="false"></app-player-list>
 							</div>
 						}
 					}

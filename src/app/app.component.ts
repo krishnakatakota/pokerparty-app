@@ -61,10 +61,7 @@ export class AppComponent implements OnInit {
 					if (this.isHost) {
 						var requestPlayer = <Player>messageBody;
 						if (requestPlayer.joinCode === this.localGameCode) {
-							// TODO Send error message if there is a name collision
-							if (this.isNewPlayer(requestPlayer)) {
-								this.addPlayer(requestPlayer);
-							}
+							this.addPlayer(requestPlayer);
 						}
 					}
 					break;
@@ -78,14 +75,6 @@ export class AppComponent implements OnInit {
 		// console.log(this.winners);
 	}
 
-	isNewPlayer(requestPlayer: Player) {
-		for (let player of this.dealerService.playerList) {
-			if (player.name == requestPlayer.name) {
-				return false;
-			}
-		}
-		return true;
-	}
 
 	deal() {
 		console.log("REDEAL");
@@ -117,8 +106,23 @@ export class AppComponent implements OnInit {
 		return result;
 	}
 
+	isNewPlayer(requestPlayer: Player) {
+		for (let player of this.dealerService.playerList) {
+			if (player.name == requestPlayer.name) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	addPlayer(newPlayer: Player) {
-		this.dealerService.addPlayer(newPlayer);
+		// TODO Send error message if there is a name collision
+		if (this.isNewPlayer(newPlayer)) {
+			// send confirmation by echoing back request
+			console.log("NEW PLAYER ADDED");
+			this.wsService.sendMessage(newPlayer);
+			this.dealerService.addPlayer(newPlayer);
+		}
 		this.sendGameState();
 	}
 
@@ -133,6 +137,14 @@ export class AppComponent implements OnInit {
 
 	sendJoinRequest() {
 		this.wsService.sendMessage(this.player);
+		// TODO rewrite more elegantly
+		this.wsService.lastMessage.subscribe(message => {
+			var messageString = JSON.stringify(this.player);
+			if (message === "1:" + messageString) {
+				this.joiningGame = false;
+				console.log("CONFIRMATION ACCEPTED");
+			}
+		});
 	}
 
 	sendGameState() {
@@ -155,7 +167,7 @@ export class AppComponent implements OnInit {
 			gameCode: this.localGameCode
 		}
 
-		this.sendGameState();
+		// this.sendGameState();
 
 		this.choosingMode = false;
 		this.isHost = true;
