@@ -3,7 +3,7 @@ import { PpWsService } from "./services/pp-ws.service";
 import { Component, OnInit, inject } from "@angular/core";
 
 import { Player } from "./objects/player";
-import { GameState } from "./objects/gameState";
+import { GameState, DealingStage } from "./objects/gameState";
 import { Subscription } from "rxjs";
 
 @Component({
@@ -38,6 +38,7 @@ export class AppComponent implements OnInit {
 	isHost: boolean = true;
 	gameStarted: boolean = false;
 	joiningGame: boolean = true;
+	dealingStage: DealingStage = 0;
 
 	ngOnInit() {
 		this.deal();
@@ -46,14 +47,18 @@ export class AppComponent implements OnInit {
 		this.wsService.connect(wsUrl);
 
 		this.subscription = this.wsService.lastMessage.subscribe(message => {
-			console.log(message.substring(0,1));
+			// console.log(message.substring(0,1));
 			const messageCode = parseInt(message.substring(0,1));
 			const messageBody = JSON.parse(message.substring(2));
 
 			switch (messageCode) {
 				case 0: {
 					// 0 = Game state update
-					this.gameState = <GameState>messageBody;
+					if (!this.isHost) {
+						this.gameState.ds = <DealerService>messageBody;
+						this.dealerService = this.gameState.ds;
+						this.refreshPlayer();
+					}
 					break;
 				}
 				case 1: {
@@ -75,6 +80,16 @@ export class AppComponent implements OnInit {
 		// console.log(this.winners);
 	}
 
+	refreshPlayer() {
+		for (let player of this.dealerService.playerList) {
+			if (player.name != this.player.name) {
+				continue;
+			}
+			this.player = player;
+			break;
+		}
+	}
+
 
 	deal() {
 		console.log("REDEAL");
@@ -82,10 +97,17 @@ export class AppComponent implements OnInit {
 		this.dealerService.dealHands();
 		this.dealerService.dealCommunityCards();
 		this.winners = this.dealerService.determineWinner();
-
-		console.log(this.dealerService);
+		this.dealingStage = DealingStage.Preflop;
+		this.wsService.sendMessage(this.dealerService);
 	}
 
+	showNextCommunityCards() {
+		if (this.dealingStage == DealingStage.River) {
+			return;
+		} else {
+			this.dealingStage++;
+		}
+	}
 	incrementUserId() {
 		this.userId++;
 		if (this.userId >= this.dealerService.playerList.length) {
@@ -138,11 +160,14 @@ export class AppComponent implements OnInit {
 	sendJoinRequest() {
 		this.wsService.sendMessage(this.player);
 		// TODO rewrite more elegantly
+		// TODO rewrite so it actually prevents a duplicate player from advancing
 		this.wsService.lastMessage.subscribe(message => {
 			var messageString = JSON.stringify(this.player);
 			if (message === "1:" + messageString) {
 				this.joiningGame = false;
 				console.log("CONFIRMATION ACCEPTED");
+				// TODO remove after testing
+				this.gameStarted = true;
 			}
 		});
 	}
@@ -192,7 +217,9 @@ export class AppComponent implements OnInit {
 
 	// <!-- Set gameStarted to true -->
 	startGame() {
+		console.log("STARTING GAME");
 		this.gameStarted = true;
+		this.deal();
 	}
 
 	// <!-- Player leaves game, goes back to join lobby screen by setting gameStarted to false and joiningGame to true -->

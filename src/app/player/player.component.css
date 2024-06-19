@@ -1,19 +1,22 @@
 .content-wrapper {
-	margin-left: 10px;
+  margin-left: 10px;
 }
 
 h1 {
-	font-size: 50px;
-	font-weight: bold;
-	font-style: italic;
+  font-size: 50px;
+  font-weight: bold;
+  font-style: italic;
 }
 
 h2 {
-    font-size: 30px;
+  font-size: 30px;
 }
 
 .grid-container {
-	display: grid;
-	grid-template-columns: repeat(2, 175px);
-	justify-items: left;
+  display: flex;
+  justify-content: center; /* Horizontal centering */
+  align-items: center; /* Vertical centering */
+  flex-wrap: wrap; /* Wrap the cards if they overflow */
+  gap: 10px;               /* Optional: space between cards */
+  padding: 20px;           /* Optional: padding around the container */
 }

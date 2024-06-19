@@ -34,39 +34,43 @@
 					@if (gameStarted) {
 						<!-- Everyone is in and game HAS started, and therefore should see community screen -->
 						<div class="general-content">
-							<!-- Ends game, kicks all back to lobby screen by setting gameStarted to false -->
-							<p-button label="End Game" (click)="endGame()"></p-button>
-							<br><br>
-							<!-- Display community cards w/ all corresponding buttons -->
-							<app-community [community]="this.dealerService.community"></app-community>
-							<br>
 							<!-- TODO: Should add button logic to do 3 + 1 + 1 instead of all 5 cards at once -->
-							<p-button label="Deal" (click)="deal()" />
+							<p-button label="Next" (click)="showNextCommunityCards()"/>
+							<br><br>
+
+							<!-- Display community cards w/ all corresponding buttons -->
+							<app-community [community]="this.dealerService.community" [dealingStage]="this.dealingStage"></app-community>
+							<br>
+
+							<!-- Redeals all cards -->
+							<p-button label="Redeal" (click)="deal()" />
+
+							<!-- Ends game, kicks all back to lobby screen by setting gameStarted to false -->
+							<p-button label="End Game" (click)="endGame() " severity="danger"></p-button>
 						</div>
 					}
 					@else {
 						<!-- Lobby is populating and game HASN'T started, should see player-list screen -->
 						<div class="general-content">
 							<!-- Should close lobby, set gameStarted to false, choosingMode to true -->
-							<p-button label="Close Lobby" (click)="closeLobby()"></p-button>
+							<p-button label="Close Lobby" (click)="closeLobby()" severity="danger"></p-button>
 							<br><br>
 							<!-- Setting isHost parameter to true to permit player reordering -->
 							<app-player-list isHost="true" joinCode="{{ localGameCode }}" [playerList]="this.dealerService.playerList"></app-player-list>
 							<br>
 							<!-- Set gameStarted to true -->
-							<p-button label="Start Game" (click)="startGame()"></p-button>
+							<p-button label="Start Game" (click)="startGame()" severity="success"></p-button>
 						</div>
 					}
 				}
 				@else {
 					<!-- User has chosen player -->
-					<!-- TODO users currently have no way of seeing if the game started or seeing their cards -->
 					@if (gameStarted) {
 						<!-- Player's game has started, so they should see their own cards on player screen -->
 						<div class="general-content">
 							<!-- Player leaves game, goes back to join lobby screen by setting gameStarted to false and joiningGame to true -->
 							<p-button label="Back" (click)="leaveGame()"></p-button>
-							<app-player [player]="player"></app-player>
+							<app-player [player]="this.player"></app-player>
 							<!-- TODO: SHOULD BE DELETED WHEN FINISHED TESTING!!!!!! -->
 							<p-button label="Change User (FOR TESTING PURPOSES ONLY)" (click)="incrementUserId()" />
 							<!-- Left blank for player actions (fold check etc idk) -->

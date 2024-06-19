@@ -1,6 +1,7 @@
 import { Component, Input, inject } from "@angular/core";
 import { Card } from "../objects/card";
 import { DealerService } from "../services/dealer.service";
+import { DealingStage } from "../objects/gameState"
 
 @Component({
 	selector: "app-community",
@@ -9,6 +10,7 @@ import { DealerService } from "../services/dealer.service";
 })
 export class CommunityComponent {
 	@Input() community!: Card[];
+	@Input() dealingStage!: DealingStage;
 	// community!: Card[];
 
 	ngOnInit() {

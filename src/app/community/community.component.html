@@ -1,6 +1,20 @@
 <p-card>
 	<h1>Community:</h1>
 	<div class="grid-container">
-		<app-card *ngFor="let card of community" [card]="card"></app-card><br />
+		@switch (dealingStage) {
+			@case (0) { <!-- preflop -->
+				<app-card *ngFor="let card of community.slice(0,0)" [card]="card"></app-card><br />
+			}
+			@case (1) { <!-- flop -->
+				<app-card *ngFor="let card of community.slice(0,3)" [card]="card"></app-card><br />
+			}
+			@case (2) { <!-- turn -->
+				<app-card *ngFor="let card of community.slice(0,4)" [card]="card"></app-card><br />
+			}
+			@case (3) { <!-- river -->
+				<app-card *ngFor="let card of community" [card]="card"></app-card><br />
+			}
+
+		}
 	</div>
 </p-card>
