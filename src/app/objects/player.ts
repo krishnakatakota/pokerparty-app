@@ -1,4 +1,5 @@
 import { Card } from "./card";
+import { PokerHandResult } from "./pokerHandResult";
 
 export interface Player {
     id: number;
@@ -7,4 +8,9 @@ export interface Player {
 	turnNumber: number;
 	status: any;
 	joinCode: string;
+}
+
+export interface Winner {
+    player: Player;
+    hand: PokerHandResult;
 }

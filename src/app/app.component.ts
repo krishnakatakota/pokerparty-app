@@ -2,7 +2,7 @@ import { DealerService } from "./services/dealer.service";
 import { PpWsService } from "./services/pp-ws.service";
 import { Component, OnInit, inject } from "@angular/core";
 
-import { Player } from "./objects/player";
+import { Player, Winner } from "./objects/player";
 import { GameState, DealingStage } from "./objects/gameState";
 import { Subscription } from "rxjs";
 
@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
 	dealerService: DealerService = inject(DealerService);
 	private subscription!: Subscription;
 
-	winners: Player[] = [];
+	winners: Winner[] = [];
 	userId: number = 0;
 	localGameCode: string = "";
 	gameState: GameState = {
@@ -91,7 +91,6 @@ export class AppComponent implements OnInit {
 		}
 	}
 
-
 	deal() {
 		console.log("REDEAL");
 		this.dealerService.shuffleDeck();
@@ -103,7 +102,7 @@ export class AppComponent implements OnInit {
 	}
 
 	showNextCommunityCards() {
-		if (this.dealingStage == DealingStage.River) {
+		if (this.dealingStage == DealingStage.Reveal) {
 			return;
 		} else {
 			this.dealingStage++;

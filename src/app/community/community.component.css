@@ -6,14 +6,17 @@ h1 {
 	font-size: 50px;
 	font-weight: bold;
 	font-style: italic;
+	text-align: center;
 }
 
 h2 {
 	font-size: 30px;
+	text-align: center;
 }
 
 .grid-container {
 	display: grid;
 	grid-template-columns: repeat(5, 175px);
 	justify-items: left;
+	text-align: center
 }

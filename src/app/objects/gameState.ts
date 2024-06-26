@@ -10,4 +10,5 @@ export enum DealingStage {
 	Flop,
 	Turn,
 	River,
+	Reveal
 }

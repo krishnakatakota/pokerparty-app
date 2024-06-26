@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Card, Suit, Rank } from "../objects/card";
-import { Player } from "../objects/player";
+import { Player, Winner } from "../objects/player";
 import { PokerHandResult } from "../objects/pokerHandResult";
 
 import { PpWsService } from "./pp-ws.service";
@@ -61,19 +61,22 @@ export class DealerService {
 		}
 	}
 
-	determineWinner(): Player[] {
-		let playerResults: any[] = []; // [id, result]
+	determineWinner(): Winner[] {
+		let playerResults: any[] = []; // [player: Player, result: PokerHandResult]
 		this.playerList.forEach((player) => {
-			playerResults.push([player.id, this.scoreHand(player.hand)]);
+			playerResults.push([player, this.scoreHand(player.hand)]);
 		});
 		playerResults.sort((a: any, b: any) => {
 			return b[1].value - a[1].value;
 		});
-		let winners: Player[] = [];
+		let winners: Winner[] = [];
 		// check for split pots
-		for (let i = 0; i < this.playerList.length; i++) {
+		for (let i = 0; i < playerResults.length; i++) {
 			if (playerResults[i][1].value == playerResults[0][1].value) {
-				winners.push(this.playerList[playerResults[i][0]]);
+				winners.push({
+					player: playerResults[i][0],
+					hand: playerResults[i][1]
+				});
 			}
 		}
 		return winners;

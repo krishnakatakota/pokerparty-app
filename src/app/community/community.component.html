@@ -1,5 +1,5 @@
 <p-card>
-	<h1>Community:</h1>
+	<h1>Community</h1>
 	<div class="grid-container">
 		@switch (dealingStage) {
 			@case (0) { <!-- preflop -->
@@ -14,7 +14,14 @@
 			@case (3) { <!-- river -->
 				<app-card *ngFor="let card of community" [card]="card"></app-card><br />
 			}
+			@case (4) {
+				<app-card *ngFor="let card of community" [card]="card"></app-card><br />
+
+			}
 
 		}
 	</div>
+	@if (dealingStage == 4) {
+		<h2 *ngFor="let winner of winners">Winner: {{ winner.player.name }}  via {{ winner.hand.name }}</h2>
+	}
 </p-card>
