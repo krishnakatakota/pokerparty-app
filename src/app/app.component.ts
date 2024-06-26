@@ -55,6 +55,7 @@ export class AppComponent implements OnInit {
 				case 0: {
 					// 0 = Game state update
 					if (!this.isHost) {
+						this.gameStarted = true;
 						this.gameState.ds = <DealerService>messageBody;
 						this.dealerService = this.gameState.ds;
 						this.refreshPlayer();
@@ -145,7 +146,6 @@ export class AppComponent implements OnInit {
 			this.wsService.sendMessage(newPlayer);
 			this.dealerService.addPlayer(newPlayer);
 		}
-		this.sendGameState();
 	}
 
 	// sendDeck() {
@@ -167,7 +167,6 @@ export class AppComponent implements OnInit {
 				this.joiningGame = false;
 				console.log("CONFIRMATION ACCEPTED");
 				// TODO remove after testing
-				this.gameStarted = true;
 			}
 		});
 	}
