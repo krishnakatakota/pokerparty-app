@@ -1,7 +1,17 @@
-<p-card header="Player {{ player.id }}: ({{ player.name }})">
-	<!-- <div class="content-wrapper"> -->
+@if (this.player.status !== "folded") {
+	<p-card header="Player {{ player.id }}: ({{ player.name }})">
+		<!-- <div class="content-wrapper"> -->
 		<div class="grid-container">
 			<app-card *ngFor="let card of player.hand" [card]="card"></app-card><br><br>
 		</div>
-	<!-- </div> -->
-</p-card>
+		<!-- </div> -->
+	</p-card>
+}
+@else {
+	<p-card>
+		<div class="red-screen">
+			<h1>Folded!</h1>
+			<h3>Wait for next round to begin :(</h3>
+		</div>
+	</p-card>
+}

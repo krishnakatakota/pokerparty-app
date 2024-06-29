@@ -121,7 +121,7 @@ export class AppComponent implements OnInit {
 		const charactersLength = characters.length;
 		let counter = 0;
 		while (counter < length) {
-			result += characters.charAt(Math.floor(Math.random() * charactersLength));
+			result += characters.charAt(Math.floor(Math.random() * charactersLength)); 
 			counter += 1;
 		}
 		console.log(result);
@@ -202,6 +202,10 @@ export class AppComponent implements OnInit {
 		this.isHost = false;
 	}
 
+	fold() {
+
+		this.player.status = "folded";
+	}
 	// <!-- Ends game, kicks all back to lobby screen by setting gameStarted to false -->
 	endGame() {
 		this.gameStarted = false;
