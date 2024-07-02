@@ -63,11 +63,16 @@ export class AppComponent implements OnInit {
 					break;
 				}
 				case 1: {
-					// 1 = Player join request
+					// 1 = Player update
 					if (this.isHost) {
-						var requestPlayer = <Player>messageBody;
-						if (requestPlayer.joinCode === this.localGameCode) {
-							this.addPlayer(requestPlayer);
+						if (!this.gameStarted) { // Player join request
+							var requestPlayer = <Player>messageBody;
+							if (requestPlayer.joinCode === this.localGameCode) {
+								this.addPlayer(requestPlayer);
+							}
+						} else { // Player status update
+							var currPlayerIndex = this.dealerService.playerList.findIndex(player => player.name === messageBody.name);
+							this.dealerService.playerList[currPlayerIndex].status = messageBody.status;
 						}
 					}
 					break;
@@ -87,27 +92,34 @@ export class AppComponent implements OnInit {
 				continue;
 			}
 			this.player = player;
-			break;
+			return;
 		}
 	}
 
 	deal() {
 		console.log("REDEAL");
+		this.dealerService.unfoldPlayers();
 		this.dealerService.shuffleDeck();
 		this.dealerService.dealHands();
 		this.dealerService.dealCommunityCards();
-		this.winners = this.dealerService.determineWinner();
+		// this.winners = this.dealerService.determineWinner();
 		this.dealingStage = DealingStage.Preflop;
 		this.wsService.sendMessage(this.dealerService);
 	}
 
 	showNextCommunityCards() {
+		console.log(this.dealingStage);
+		console.log(this.dealerService.playerList);
 		if (this.dealingStage == DealingStage.Reveal) {
 			return;
 		} else {
 			this.dealingStage++;
+			if (this.dealingStage == DealingStage.Reveal) {
+				this.winners = this.dealerService.determineWinner();	
+			}
 		}
 	}
+
 	incrementUserId() {
 		this.userId++;
 		if (this.userId >= this.dealerService.playerList.length) {
@@ -203,9 +215,10 @@ export class AppComponent implements OnInit {
 	}
 
 	fold() {
-
 		this.player.status = "folded";
+		this.wsService.sendMessage(this.player);
 	}
+
 	// <!-- Ends game, kicks all back to lobby screen by setting gameStarted to false -->
 	endGame() {
 		this.gameStarted = false;
