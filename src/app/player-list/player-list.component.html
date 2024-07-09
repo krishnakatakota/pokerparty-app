@@ -15,7 +15,7 @@
 				<ng-template pTemplate="header">
 					<tr>
 						<th>Name</th>
-						<th>Turn</th>
+						<th>Status</th>
 					</tr>
 				</ng-template>
 		
@@ -28,7 +28,7 @@
 				<ng-template pTemplate="body" let-player>
 					<tr>
 						<td>{{ player.name }}</td>
-						<td>{{ player.turnNumber }}</td>
+						<td>{{ player.status }}</td>
 					</tr>
 				</ng-template>
 			</p-table>

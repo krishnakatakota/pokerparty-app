@@ -42,6 +42,34 @@
 							<app-community [community]="this.dealerService.community" [dealingStage]="this.dealingStage" [winners]="this.winners"></app-community>
 							<br>
 
+						<!-- imported directly from player-list -->
+							<p-table [value]="this.dealerService.playerList" [tableStyle]="{ 'min-width': '20vw' }" styleClass="p-datatable-lg">
+								<!-- 
+								pTemplate header defines what is shown in the table.
+								Order of elements here should be same as order in pTemplate body.
+							-->
+							<ng-template pTemplate="header">
+								<tr>
+									<th>Name</th>
+									<th>Status</th>
+								</tr>
+							</ng-template>
+					
+							<!-- 
+								pTemplate body populates all players' data.
+								The "let-player" defines "player" as each element of the "playerList" 
+								collection defined in [value] above. You can get each player's data
+								using player.FIELD_NAME, as seen below.
+							-->
+							<ng-template pTemplate="body" let-player>
+								<tr>
+									<td>{{ player.name }}</td>
+									<td>{{ player.status }}</td>
+								</tr>
+							</ng-template>
+						</p-table>
+						<!-- End of imported code -->
+
 							<!-- Redeals all cards -->
 							<p-button label="Redeal" (click)="deal()" />
 
@@ -72,10 +100,10 @@
 							<p-button label="Back" (click)="leaveGame()"></p-button>
 							<app-player [player]="this.player"></app-player>
 							<!-- TODO: SHOULD BE DELETED WHEN FINISHED TESTING!!!!!! -->
-							<p-button label="Change User (FOR TESTING PURPOSES ONLY)" (click)="incrementUserId()" />
+							<!-- <p-button label="Change User (FOR TESTING PURPOSES ONLY)" (click)="incrementUserId()" /> -->
 							<!-- Left blank for player actions (fold check etc idk) -->
-							<p-button label="Fold" (click)="fold()" ></p-button>
-							<p-button label="Action" ></p-button>
+							<p-button label="Fold" (click)="fold()" severity="danger"></p-button>
+							<!-- <p-button label="Action" ></p-button> -->
 						</div>
 					}
 					@else {

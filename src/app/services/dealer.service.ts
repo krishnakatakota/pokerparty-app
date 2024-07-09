@@ -9,6 +9,7 @@ import { PpWsService } from "./pp-ws.service";
 	providedIn: "root",
 })
 export class DealerService {
+
 	playerList: Player[] = [];
 
 	deck: Card[] = [];
@@ -46,6 +47,12 @@ export class DealerService {
 		}
 	}
 
+	unfoldPlayers() {
+		for (let player of this.playerList) {
+			player.status = 'active';
+		}
+	}
+
 	// set the hand[] array of each player to an array of two Cards
 	dealHands(): void {
 		const numPlayers = this.playerList.length;
@@ -64,7 +71,9 @@ export class DealerService {
 	determineWinner(): Winner[] {
 		let playerResults: any[] = []; // [player: Player, result: PokerHandResult]
 		this.playerList.forEach((player) => {
-			playerResults.push([player, this.scoreHand(player.hand)]);
+			if (player.status !== 'folded') { // Check if the player status is not 'folded'
+				playerResults.push([player, this.scoreHand(player.hand)]);
+			}
 		});
 		playerResults.sort((a: any, b: any) => {
 			return b[1].value - a[1].value;

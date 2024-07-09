@@ -46,35 +46,7 @@ export class AppComponent implements OnInit {
 		const wsUrl = "ws://localhost:8080";
 		this.wsService.connect(wsUrl);
 
-		this.subscription = this.wsService.lastMessage.subscribe(message => {
-			// console.log(message.substring(0,1));
-			const messageCode = parseInt(message.substring(0,1));
-			const messageBody = JSON.parse(message.substring(2));
-
-			switch (messageCode) {
-				case 0: {
-					// 0 = Game state update
-					if (!this.isHost) {
-						this.gameStarted = true;
-						this.gameState.ds = <DealerService>messageBody;
-						this.dealerService = this.gameState.ds;
-						this.refreshPlayer();
-					}
-					break;
-				}
-				case 1: {
-					// 1 = Player join request
-					if (this.isHost) {
-						var requestPlayer = <Player>messageBody;
-						if (requestPlayer.joinCode === this.localGameCode) {
-							this.addPlayer(requestPlayer);
-						}
-					}
-					break;
-				}
-			}
-
-		});
+		this.subscription = this.subscribe();
 
 		// this.deal();
 		// console.log(this.dealerService);
@@ -87,27 +59,34 @@ export class AppComponent implements OnInit {
 				continue;
 			}
 			this.player = player;
-			break;
+			return;
 		}
 	}
 
 	deal() {
 		console.log("REDEAL");
+		this.dealerService.unfoldPlayers();
 		this.dealerService.shuffleDeck();
 		this.dealerService.dealHands();
 		this.dealerService.dealCommunityCards();
-		this.winners = this.dealerService.determineWinner();
+		// this.winners = this.dealerService.determineWinner();
 		this.dealingStage = DealingStage.Preflop;
 		this.wsService.sendMessage(this.dealerService);
 	}
 
 	showNextCommunityCards() {
+		console.log(this.dealingStage);
+		console.log(this.dealerService.playerList);
 		if (this.dealingStage == DealingStage.Reveal) {
 			return;
 		} else {
 			this.dealingStage++;
+			if (this.dealingStage == DealingStage.Reveal) {
+				this.winners = this.dealerService.determineWinner();	
+			}
 		}
 	}
+
 	incrementUserId() {
 		this.userId++;
 		if (this.userId >= this.dealerService.playerList.length) {
@@ -130,7 +109,7 @@ export class AppComponent implements OnInit {
 
 	isNewPlayer(requestPlayer: Player) {
 		for (let player of this.dealerService.playerList) {
-			if (player.name == requestPlayer.name) {
+			if (player.name === requestPlayer.name) {
 				return false;
 			}
 		}
@@ -140,11 +119,19 @@ export class AppComponent implements OnInit {
 	addPlayer(newPlayer: Player) {
 		// TODO Send error message if there is a name collision
 		if (this.isNewPlayer(newPlayer)) {
-			// send confirmation by echoing back request
+			// send confirmation by changing status to "joined" and echoing back Player object
 			console.log("NEW PLAYER ADDED");
-			this.wsService.sendMessage(newPlayer);
 			this.dealerService.addPlayer(newPlayer);
+			var newPlayerIndex = this.dealerService.playerList.findIndex(player => player.name === newPlayer.name);
+			this.dealerService.playerList[newPlayerIndex].status = "joined";
+			this.wsService.sendMessage(this.dealerService.playerList[newPlayerIndex]);
+		} else {
+			// send rejection by keeping status as "requesting-join" and echoing back Player object
+			console.log("NEW PLAYER REJECTED");
+			newPlayer.status = "requesting-join";
+			this.wsService.sendMessage(newPlayer);
 		}
+		return;
 	}
 
 	// sendDeck() {
@@ -158,14 +145,65 @@ export class AppComponent implements OnInit {
 
 	sendJoinRequest() {
 		this.wsService.sendMessage(this.player);
-		// TODO rewrite more elegantly
-		// TODO rewrite so it actually prevents a duplicate player from advancing
-		this.wsService.lastMessage.subscribe(message => {
-			var messageString = JSON.stringify(this.player);
-			if (message === "1:" + messageString) {
-				this.joiningGame = false;
-				console.log("CONFIRMATION ACCEPTED");
-				// TODO remove after testing
+		// // TODO rewrite so it actually prevents a duplicate player from advancing
+		// if (this.subscription) {
+		// 	this.subscription.unsubscribe();
+		// }
+		// this.subscription = this.wsService.lastMessage.subscribe(message => {
+		// 	var messageObject = JSON.parse(message.slice(2));
+		// 	console.log(messageObject);
+			
+		// 	this.subscription.unsubscribe();
+		// });
+		// console.log("RESUBSCRIBING");
+		// this.subscription = this.subscribe();
+	}
+
+	subscribe() {
+		return this.wsService.lastMessage.subscribe(message => {
+			// console.log(message.substring(0,1));
+			const messageCode = parseInt(message.substring(0,1));
+			const messageBody = JSON.parse(message.substring(2));
+
+			switch (messageCode) {
+				case 0: {
+					// 0 = Game state update
+					if (!this.isHost) {
+						this.gameStarted = true;
+						this.gameState.ds = <DealerService>messageBody;
+						this.dealerService = this.gameState.ds;
+						this.refreshPlayer();
+					}
+					break;
+				}
+				case 1: {
+					// 1 = Player update
+					if (this.isHost) {
+						if (!this.gameStarted) { // Player join request
+							var requestPlayer = <Player>messageBody;
+							if (requestPlayer.joinCode === this.localGameCode) {
+								this.addPlayer(requestPlayer);
+							}
+						} else { // Player status update
+							var currPlayerIndex = this.dealerService.playerList.findIndex(player => player.name === messageBody.name);
+							this.dealerService.playerList[currPlayerIndex].status = messageBody.status;
+						}
+					} else {
+						if (!this.gameStarted) {
+							if (this.player.status === "joined") {
+								break;
+							} else if (messageBody.name === this.player.name && messageBody.status === "joined") {
+								this.joiningGame = false;
+								this.player.status = "joined";
+								console.log("CONFIRMATION ACCEPTED");
+							} else {
+								this.joiningGame = true;
+								console.log("CONFIRMATION REJECTED");
+							}
+						}
+					}
+					break;
+				}
 			}
 		});
 	}
@@ -203,9 +241,10 @@ export class AppComponent implements OnInit {
 	}
 
 	fold() {
-
 		this.player.status = "folded";
+		this.wsService.sendMessage(this.player);
 	}
+
 	// <!-- Ends game, kicks all back to lobby screen by setting gameStarted to false -->
 	endGame() {
 		this.gameStarted = false;
