@@ -1,4 +1,6 @@
-# PokerParty!
+# *pokerparty!*
+## by Ryder Pham and Krishna Katakota
+
 
 ### Instructions for running locally
 * clone repo
