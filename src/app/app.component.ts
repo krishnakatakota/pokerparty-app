@@ -43,7 +43,8 @@ export class AppComponent implements OnInit {
 	ngOnInit() {
 		this.deal();
 		
-		const wsUrl = "ws://localhost:8080";
+		// const wsUrl = "ws://localhost:8080";
+		const wsUrl = "ws://ec2-18-216-64-83.us-east-2.compute.amazonaws.com:8080/";
 		this.wsService.connect(wsUrl);
 
 		this.subscription = this.subscribe();
