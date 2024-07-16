@@ -10,3 +10,5 @@
 
 Prototype as of June 18, 2024:
 ![](https://github.com/krishnakatakota/pokerparty-app/blob/master/images/ScreenRecording2024-06-18at20.12.32-ezgif.com-speed.gif)
+
+Legacy repo [here](https://github.com/havesomepham/pokerparty)
