@@ -48,8 +48,8 @@ export class AppComponent implements OnInit {
 		// const wsUrl = "ws://ec2-18-216-64-83.us-east-2.compute.amazonaws.com:8080/";
 
 		// HTTPS:
-		// const wsUrl = "wss://ec2-18-216-64-83.us-east-2.compute.amazonaws.com";
-		const wsUrl = "wss://18.216.64.83";
+		const wsUrl = "wss://ec2-18-216-64-83.us-east-2.compute.amazonaws.com";
+		// const wsUrl = "wss://18.216.64.83";
 
 		this.wsService.connect(wsUrl);
 
