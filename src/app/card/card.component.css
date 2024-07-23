@@ -4,6 +4,7 @@ p {
 }
 
 .card {
-	width: 125px;
-	text-align: center
-;}
+	width: 75px;
+	height: calc(1.4 * width);
+	text-align: center;
+}

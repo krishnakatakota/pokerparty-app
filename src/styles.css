@@ -6,5 +6,6 @@
 	border-radius: 20px;
 	background-color: #333;
 	padding: 25px;
+	max-width: 100%; /* Ensure width does not exceed device width */
 	text-align: center;
 }

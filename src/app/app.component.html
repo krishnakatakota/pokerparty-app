@@ -14,9 +14,10 @@
 				<!-- Player is still choosing whether to host or to join a game -->
 				<div class="general-content">
 					<p-card>
+						<h1>pokerparty!</h1>
 						<div class="larger-text">
-							<h1>pokerparty!</h1>
-							<h4>Welcome!<br>Click below to either host or join a game.</h4>
+							<h4>Click below to either host or join a game.</h4>
+
 						</div>
 						<br>
 						<!-- User wants to host a lobby, set choosingMode to false and isHost to true. Also, generate join code here. -->
@@ -34,7 +35,9 @@
 					@if (gameStarted) {
 						<!-- Everyone is in and game HAS started, and therefore should see community screen -->
 						<div class="general-content">
-							<!-- TODO: Should add button logic to do 3 + 1 + 1 instead of all 5 cards at once -->
+							<div class="gameCode">
+								<h2>Code: <i>{{this.localGameCode}}</i></h2>
+							</div>
 							<p-button label="Next" (click)="showNextCommunityCards()"/>
 							<br><br>
 
@@ -99,8 +102,6 @@
 							<!-- Player leaves game, goes back to join lobby screen by setting gameStarted to false and joiningGame to true -->
 							<p-button label="Back" (click)="leaveGame()"></p-button>
 							<app-player [player]="this.player"></app-player>
-							<!-- TODO: SHOULD BE DELETED WHEN FINISHED TESTING!!!!!! -->
-							<!-- <p-button label="Change User (FOR TESTING PURPOSES ONLY)" (click)="incrementUserId()" /> -->
 							<!-- Left blank for player actions (fold check etc idk) -->
 							<p-button label="Fold" (click)="fold()" severity="danger"></p-button>
 							<!-- <p-button label="Action" ></p-button> -->
