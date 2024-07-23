@@ -44,12 +44,8 @@ export class AppComponent implements OnInit {
 		// Local:
 		// const wsUrl = "ws://localhost:8080";
 
-		// HTTP:
-		// const wsUrl = "ws://ec2-18-216-64-83.us-east-2.compute.amazonaws.com:8080/";
-
 		// HTTPS:
-		// const wsUrl = "wss://ec2-18-216-64-83.us-east-2.compute.amazonaws.com";
-		const wsUrl = "wss://ec2-3-145-129-22.us-east-2.compute.amazonaws.com";
+		const wsUrl = "wss://websocket.pokerparty.click";
 
 		this.wsService.connect(wsUrl);
 
