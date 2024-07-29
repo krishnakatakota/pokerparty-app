@@ -146,6 +146,12 @@ export class AppComponent implements OnInit {
 
 			switch (reqType) {
 				// GAMESTATE UPDATES
+				// TODO Note: a player who causes a name collision still receives 
+				// player data from the host and still loads card components even
+				// though they were not allowed to join the game and their player
+				// status is always "requesting-join." Change gameStarted state 
+				// to depend on player status (i.e., do not load component if
+				// status is requesting-join)
 				case MsgTypes.gameState: {
 					//	gameState update
 					if (!this.isHost) {
@@ -159,7 +165,6 @@ export class AppComponent implements OnInit {
 				case MsgTypes.rejectJoin: {
 					//	player join request was rejected
 					if (reqBody.name == this.player.name) {
-						this.joiningGame = true;
 						console.log("CONFIRMATION REJECTED");
 					}
 				}
