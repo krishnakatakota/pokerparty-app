@@ -1,0 +1,50 @@
+// THIS IS THE OLD SUBSCRIBE METHOD, USED ONLY FOR REFERENCE
+
+subscribe() {
+    return this.wsService.lastMessage.subscribe(message => {
+        // console.log(message.substring(0,1));
+        const messageCode = parseInt(message.substring(0,1));
+        const messageBody = JSON.parse(message.substring(2));
+
+        switch (messageCode) {
+            case 0: {
+                // 0 = Game state update
+                if (!this.isHost) {
+                    this.gameStarted = true;
+                    this.gameState.ds = <DealerService>messageBody;
+                    this.dealerService = this.gameState.ds;
+                    this.refreshPlayer();
+                }
+                break;
+            }
+            case 1: {
+                // 1 = Player update
+                if (this.isHost) {
+                    if (!this.gameStarted) { // Player join request
+                        var requestPlayer = <Player>messageBody;
+                        if (requestPlayer.joinCode === this.localGameCode) {
+                            this.addPlayer(requestPlayer);
+                        }
+                    } else { // Player status update
+                        var currPlayerIndex = this.dealerService.playerList.findIndex(player => player.name === messageBody.name);
+                        this.dealerService.playerList[currPlayerIndex].status = messageBody.status;
+                    }
+                } else {
+                    if (!this.gameStarted) {
+                        if (this.player.status === "joined") {
+                            break;
+                        } else if (messageBody.name === this.player.name && messageBody.status === "joined") {
+                            this.joiningGame = false;
+                            this.player.status = "joined";
+                            console.log("CONFIRMATION ACCEPTED");
+                        } else {
+                            this.joiningGame = true;
+                            console.log("CONFIRMATION REJECTED");
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    });
+}

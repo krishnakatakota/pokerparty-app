@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
+import { Request, MsgTypes } from "../objects/request";
+
 @Injectable({
 	providedIn: 'root'
 })
@@ -30,9 +32,16 @@ export class PpWsService {
 		};
 	}
 
-	public sendMessage(message: any): void {
+	public sendMessage(requestType: MsgTypes, payload: any): void {
+		const req: Request = {
+			reqType: requestType,
+			message: payload
+		};
+
+		console.log(req);
+
 		if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-			this.socket.send(JSON.stringify(message));
+			this.socket.send(JSON.stringify(req));
 		} else {
 			console.error('WebSocket is not open. Ready state:', this.socket?.readyState);
 		}

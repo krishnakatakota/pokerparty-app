@@ -1,11 +1,12 @@
+import { Subscription } from "rxjs";
+import { Component, OnInit, inject } from "@angular/core";
+
 import { DealerService } from "./services/dealer.service";
 import { PpWsService } from "./services/pp-ws.service";
-import { Component, OnInit, inject } from "@angular/core";
 
 import { Player, Winner } from "./objects/player";
 import { GameState, DealingStage } from "./objects/gameState";
-import { Subscription } from "rxjs";
-
+import { Request, MsgTypes } from "./objects/request";
 @Component({
 	selector: "app-root",
 	templateUrl: "app.component.html",
@@ -40,11 +41,7 @@ export class AppComponent implements OnInit {
 	joiningGame: boolean = true;
 	dealingStage: DealingStage = 0;
 
-	ngOnInit() {		
-		// Local:
-		// const wsUrl = "ws://localhost:8080";
-
-		// HTTPS:
+	ngOnInit() {
 		const wsUrl = "wss://websocket.pokerparty.click";
 
 		this.wsService.connect(wsUrl);
@@ -52,8 +49,6 @@ export class AppComponent implements OnInit {
 		this.subscription = this.subscribe();
 
 		this.deal();
-		// console.log(this.dealerService);
-		// console.log(this.winners);
 	}
 
 	refreshPlayer() {
@@ -74,12 +69,13 @@ export class AppComponent implements OnInit {
 		this.dealerService.dealCommunityCards();
 		// this.winners = this.dealerService.determineWinner();
 		this.dealingStage = DealingStage.Preflop;
-		this.wsService.sendMessage(this.dealerService);
+
+		this.wsService.sendMessage(MsgTypes.gameState , this.dealerService);
 	}
 
 	showNextCommunityCards() {
-		console.log(this.dealingStage);
-		console.log(this.dealerService.playerList);
+		// console.log(this.dealingStage);
+		// console.log(this.dealerService.playerList);
 		if (this.dealingStage == DealingStage.Reveal) {
 			return;
 		} else {
@@ -123,96 +119,105 @@ export class AppComponent implements OnInit {
 		// TODO Send error message if there is a name collision
 		if (this.isNewPlayer(newPlayer)) {
 			// send confirmation by changing status to "joined" and echoing back Player object
+			// CHANGED TO: send confirmation by echoing Player object with MsgType confirmJoin
 			console.log("NEW PLAYER ADDED");
 			this.dealerService.addPlayer(newPlayer);
 			var newPlayerIndex = this.dealerService.playerList.findIndex(player => player.name === newPlayer.name);
-			this.dealerService.playerList[newPlayerIndex].status = "joined";
-			this.wsService.sendMessage(this.dealerService.playerList[newPlayerIndex]);
+			// this.dealerService.playerList[newPlayerIndex].status = "joined";
+			this.wsService.sendMessage(MsgTypes.confirmJoin, this.dealerService.playerList[newPlayerIndex]);
 		} else {
 			// send rejection by keeping status as "requesting-join" and echoing back Player object
+			// CHANGED TO: send rejection by echoing Player object with MsgType rejectJoin
 			console.log("NEW PLAYER REJECTED");
-			newPlayer.status = "requesting-join";
-			this.wsService.sendMessage(newPlayer);
+			this.wsService.sendMessage(MsgTypes.rejectJoin, newPlayer);
 		}
 		return;
 	}
 
-	// sendDeck() {
-	// 	this.wsService.sendMessage(this.dealerService);
-	// }
-
-
-	// sendPlayerList() {
-	// 	this.wsService.sendMessage(this.dealerService.playerList[0]);
-	// }
-
 	sendJoinRequest() {
-		this.wsService.sendMessage(this.player);
-		// // TODO rewrite so it actually prevents a duplicate player from advancing
-		// if (this.subscription) {
-		// 	this.subscription.unsubscribe();
-		// }
-		// this.subscription = this.wsService.lastMessage.subscribe(message => {
-		// 	var messageObject = JSON.parse(message.slice(2));
-		// 	console.log(messageObject);
-			
-		// 	this.subscription.unsubscribe();
-		// });
-		// console.log("RESUBSCRIBING");
-		// this.subscription = this.subscribe();
+		this.wsService.sendMessage(MsgTypes.joinRequest, this.player);
 	}
 
 	subscribe() {
-		return this.wsService.lastMessage.subscribe(message => {
-			// console.log(message.substring(0,1));
-			const messageCode = parseInt(message.substring(0,1));
-			const messageBody = JSON.parse(message.substring(2));
+		return this.wsService.lastMessage.subscribe(msg => {
+			var req = this.msgCast(msg);
+			var reqType = req.reqType;
+			var reqBody = req.message;
 
-			switch (messageCode) {
-				case 0: {
-					// 0 = Game state update
+			switch (reqType) {
+				// GAMESTATE UPDATES
+				// TODO Note: a player who causes a name collision still receives 
+				// player data from the host and still loads card components even
+				// though they were not allowed to join the game and their player
+				// status is always "requesting-join." Change gameStarted state 
+				// to depend on player status (i.e., do not load component if
+				// status is requesting-join)
+				case MsgTypes.gameState: {
+					//	gameState update
 					if (!this.isHost) {
 						this.gameStarted = true;
-						this.gameState.ds = <DealerService>messageBody;
+						this.gameState.ds = <DealerService>reqBody;
 						this.dealerService = this.gameState.ds;
 						this.refreshPlayer();
 					}
-					break;
 				}
-				case 1: {
-					// 1 = Player update
+				break;
+				case MsgTypes.rejectJoin: {
+					//	player join request was rejected
+					if (reqBody.name == this.player.name) {
+						console.log("CONFIRMATION REJECTED");
+					}
+				}
+				break;
+				case MsgTypes.confirmJoin: {
+					//	player join request was accepted
+					if (reqBody.name == this.player.name) {
+						this.joiningGame = false;
+						this.player.status = "joined";
+						console.log("CONFIRMATION ACCEPTED");
+					}
+				}
+				break;
+				case MsgTypes.endRequest: {
+					//	TODO: IMPLEMENT GAME END REQUESTS
+					//	host ended game
+				}
+				break;
+				case MsgTypes.joinRequest: {
+					//	player is trying to join game
 					if (this.isHost) {
-						if (!this.gameStarted) { // Player join request
-							var requestPlayer = <Player>messageBody;
-							if (requestPlayer.joinCode === this.localGameCode) {
-								this.addPlayer(requestPlayer);
-							}
-						} else { // Player status update
-							var currPlayerIndex = this.dealerService.playerList.findIndex(player => player.name === messageBody.name);
-							this.dealerService.playerList[currPlayerIndex].status = messageBody.status;
-						}
-					} else {
 						if (!this.gameStarted) {
-							if (this.player.status === "joined") {
-								break;
-							} else if (messageBody.name === this.player.name && messageBody.status === "joined") {
-								this.joiningGame = false;
-								this.player.status = "joined";
-								console.log("CONFIRMATION ACCEPTED");
-							} else {
-								this.joiningGame = true;
-								console.log("CONFIRMATION REJECTED");
+							var reqPlayer = <Player>reqBody;
+							if (reqPlayer.joinCode === this.localGameCode) {
+								this.addPlayer(reqPlayer);
 							}
+						}
+						else {
+							// TODO: IMPLEMENT JOIN QUEUE
+							// Add players to a join queue for when current round ends
 						}
 					}
-					break;
 				}
+				break;
+				case MsgTypes.foldRequest: {
+					//	player is folding
+					if (this.isHost) {
+						var currPlayerIndex = this.dealerService.playerList.findIndex(player => player.name === reqBody.name);
+						this.dealerService.playerList[currPlayerIndex].status = "folded";
+					}
+				}
+				break;
+				case MsgTypes.leaveRequest: {
+					//	TODO: IMPLEMENT LEAVE REQUESTS
+					//	player is leaving game
+				}
+				break;
 			}
 		});
 	}
 
 	sendGameState() {
-		this.wsService.sendMessage(this.gameState);
+		this.wsService.sendMessage(MsgTypes.gameState, this.gameState);
 	}
 
 	setPlayer(playerEvent: Player) {
@@ -245,7 +250,7 @@ export class AppComponent implements OnInit {
 
 	fold() {
 		this.player.status = "folded";
-		this.wsService.sendMessage(this.player);
+		this.wsService.sendMessage(MsgTypes.foldRequest, this.player);
 	}
 
 	// <!-- Ends game, kicks all back to lobby screen by setting gameStarted to false -->
@@ -276,5 +281,16 @@ export class AppComponent implements OnInit {
 	backToGamemodeChoices() {
 		this.choosingMode = true;
 		this.gameStarted = false;
+	}
+
+	// casts message to Request object
+	msgCast(message: string) {
+		console.log(message);
+		var jsonMsg = JSON.parse(message);
+		var req: Request = {
+			reqType: jsonMsg.reqType,
+			message: jsonMsg.message,
+		}
+		return req;
 	}
 }
