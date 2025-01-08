@@ -7,30 +7,51 @@ import { Request, MsgTypes } from "../objects/request";
 	providedIn: 'root'
 })
 export class PpWsService {
-	private socket: WebSocket | null = null;
+	public socket: WebSocket | null = null;
 	private lastMessageSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
 	public lastMessage = this.lastMessageSubject.asObservable();
 	constructor() { }
 
-	public connect(url: string): void {
-		this.socket = new WebSocket(url);
+// In pp-ws.service.ts
+public connect(url: string): void {
+    if (this.socket) {
+        console.log('Closing existing connection');
+        this.socket.close();
+    }
 
-		this.socket.onopen = (event) => {
-			console.log("Websocket Connection Established: ", event);
-		}
-		this.socket.onmessage = (event) => {
-			this.lastMessageSubject.next(event.data);
-			console.log('WebSocket Message Received:', event.data);
-		};
+    console.log('Creating new WebSocket connection to:', url);
+    
+    try {
+        this.socket = new WebSocket(url, []);
+        
+        this.socket.onopen = (event) => {
+            console.log('WebSocket connected:', {
+                readyState: this.socket?.readyState,
+                url: this.socket?.url,
+                protocol: this.socket?.protocol
+            });
+        };
 
-		this.socket.onerror = (event) => {
-			console.error('WebSocket Error:', event);
-		};
+        this.socket.onerror = (error) => {
+            console.error('WebSocket error:', {
+                readyState: this.socket?.readyState,
+                url: this.socket?.url,
+                error
+            });
+        };
 
-		this.socket.onclose = (event) => {
-			console.log('WebSocket Connection Closed:', event);
-		};
-	}
+        this.socket.onclose = (event) => {
+            console.log('WebSocket closed:', {
+                readyState: this.socket?.readyState,
+                clean: event.wasClean,
+                code: event.code,
+                reason: event.reason
+            });
+        };
+    } catch (error) {
+        console.error('Failed to create WebSocket:', error);
+    }
+}
 
 	public sendMessage(requestType: MsgTypes, payload: any): void {
 		const req: Request = {

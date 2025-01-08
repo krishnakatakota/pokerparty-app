@@ -42,13 +42,23 @@ export class AppComponent implements OnInit {
 	dealingStage: DealingStage = 0;
 
 	ngOnInit() {
-		const wsUrl = "wss://websocket.pokerparty.click";
+		// Server URL:
+		const wsUrl = "wss://websocket.pokerparty.click/";
 
 		this.wsService.connect(wsUrl);
-
-		this.subscription = this.subscribe();
-
-		this.deal();
+	  
+		this.wsService.socket?.addEventListener('open', () => {
+		  console.log('WebSocket connection established');
+		  this.subscription = this.subscribe();
+		  
+		  if (this.isHost) {
+			this.deal();
+		  }
+		});
+	  
+		this.wsService.socket?.addEventListener('error', (error) => {
+		  console.error('WebSocket connection error:', error);
+		});
 	}
 
 	refreshPlayer() {
