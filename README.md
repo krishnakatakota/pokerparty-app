@@ -8,6 +8,9 @@
 * run `npm install`
 * run `ng serve`
 
+Playtesting demo January 7, 2025:
+![](images/IMG_3352.JPG)
+
 Prototype as of June 18, 2024:
 ![](https://github.com/krishnakatakota/pokerparty-app/blob/master/images/ScreenRecording2024-06-18at20.12.32-ezgif.com-speed.gif)
 
